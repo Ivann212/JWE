@@ -1,0 +1,377 @@
+/* Reset basique */
+body, h1, h2, p, a, nav {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  color: #fff;
+  background-color: black;
+}
+
+
+
+
+.main-title {
+  font-size: 80px;
+  font-weight: 700;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  text-align: center;
+  color: #eee;
+  text-shadow: 0 0 30px rgba(0,0,0,0.9);
+}
+
+
+
+header {
+  position: absolute; /* ou fixed si tu veux qu’il reste visible au scroll */
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 20px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: left;
+  background: transparent; /* transparent partout */
+  color: white; /* le texte ressort sur les images */
+}
+
+
+.header-logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px 20px;
+}
+.logo-animated {
+    height: 40px;
+    width: auto;
+    animation: dino-bounce 2s infinite ease-in-out;
+}
+
+@keyframes dino-bounce {
+    0%, 100%{
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+.header nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+nav a {
+  font-weight: 500;
+  color: #eee;
+  text-decoration: none;
+  padding: 8px 15px;
+  transition: color 0.3s ease, border-bottom 0.3s ease;
+}
+
+nav a:hover {
+  color: #c0a060;
+  border-bottom: 2px solid #c0a060;
+}
+
+
+
+nav a img {
+  height: 30px;
+  width: auto;
+}
+
+
+
+/* Espace pour le contenu sous le header */
+main {
+  padding-top: 90px;
+}
+main h1 {
+    text-align: center;
+}
+
+h2 {
+    text-align: center;
+}
+
+footer {
+  margin-top: 40px;
+  text-align: center;
+  color: #888;
+}
+
+.hero {
+  height: 100vh;
+  background:
+    linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+    url("/static/images/fondbtn.webp") center center / cover no-repeat;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 80px;
+  font-weight: 900;
+  margin-bottom: 30px;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.8);
+  letter-spacing: 4px;
+}
+
+
+.hero .btn-simuler {
+  padding: 20px 50px;
+  font-size: 22px;
+  font-weight: bold;
+  background: linear-gradient(135deg, #e60000, #b30000);
+  border-radius: 50px;
+  text-decoration: none;
+  color: #fff;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+}
+
+.hero .btn-simuler:hover {
+  background: linear-gradient(135deg, #ff1a1a, #a00000);
+  transform: scale(1.08);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.7);
+}
+
+.hero h1, .hero .btn-simuler {
+  opacity: 0;
+  transform: translateY(40px);
+  animation: fadeUp 1s ease forwards;
+}
+
+.hero .btn-simuler {
+  animation-delay: 0.5s;
+}
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+
+form {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #0ACDFF;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  color: #333;
+}
+
+form h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+  color: #444;
+}
+
+form input[type="text"],
+form select,
+form textarea,
+form input[type="file"] {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+form textarea {
+  height: 100px;
+  resize: vertical;
+}
+
+form button {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background-color: #4CAF50;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+form button:hover {
+  background-color: #45a049;
+}
+
+/* CARTES DINO */
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  justify-content: center;
+  padding: 40px;
+}
+
+.card {
+  background: #111;
+  border: 1px solid #1c1c1c;
+  width: 320px;
+  transition: transform 0.3s ease, border 0.3s ease;
+}
+
+.card:hover {
+  transform: scale(1.03);
+  border-color: #e10600;
+}
+
+.dino_image img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.dino_info {
+  padding: 20px;
+}
+
+.dino_info h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #f5f5f5;
+}
+
+.dino_info p {
+  font-size: 14px;
+  color: #ccc;
+  margin-bottom: 8px;
+}
+
+.dino-buttons {
+  display: flex;
+  justify-content: space-around;
+  padding: 15px;
+  border-top: 1px solid #dce1dc;
+  background-color: #f9fdf9;
+}
+
+.btn-modifier,
+.btn-supprimer {
+  padding: 8px 14px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  background: #333;
+  color: #eee;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.btn-modifier:hover,
+.btn-supprimer:hover {
+  background: #c0a060;
+  color: #111;
+}
+
+
+a[href*="ajouter_dino"] {
+  display: block;
+  text-align: center;
+  margin: 30px auto;
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  width: fit-content;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+a[href*="ajouter_dino"]:hover {
+  background-color: #3d8b40;
+}
+
+.container {
+  display: flex;       /* aligne les enfants côte à côte */
+  justify-content: center; /* centre horizontalement */
+  align-items: center; /* aligne verticalement si besoin */
+
+}
+
+.card1 {
+  flex: 1;
+  height: 50vh;
+  background:
+    linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+    url("/static/images/fonddinos.webp") center center / cover no-repeat;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+.card2 {
+  flex: 1;
+  height: 50vh;
+  background:
+    linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+    url("/static/images/fond2.webp") center center / cover no-repeat;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.container .btn-simuler {
+  padding: 20px 50px;
+  font-size: 22px;
+  font-weight: bold;
+  background: linear-gradient(135deg, #e60000, #b30000);
+  border-radius: 50px;
+  text-decoration: none;
+  color: #fff;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+}
+
+.container .btn-simuler:hover {
+  background: linear-gradient(135deg, #ff1a1a, #a00000);
+  transform: scale(1.08);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.7);
+
+}
+
+.container .btn-simuler {
+  opacity: 0;
+  transform: translateY(40px);
+  animation: fadeUp 1s ease forwards;
+}
+
+.container .btn-simuler {
+  animation-delay: 0.5s;
+}
+

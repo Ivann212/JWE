@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Liste des dinosaures</h1>
+  <form method="get">
+    <label for="type">Filtrer par type :</label>
+        <select name="type" id="type" onchange="this.form.submit()">
+            {% for type_dino in types_disponibles %}
+                <option value="{{ type_dino }}" {% if type_filtre == type_dino %}selected{% endif %}>
+                    {{ type_dino }}
+                </option>
+            {% endfor %}
+        </select>
+
+    </form>
+
+
+    <div class="card-container">
+      {% for dino in dinos %}
+        <div class="card">
+          <div class="dino_image">
+            {% if dino.image %}
+                <img src="{{ dino.image.url }}" alt="{{ dino.nom }}" />
+            {% else %}
+                <p>Aucune image</p>
+            {% endif %}
+
+          </div>
+          <div class="dino_info">
+            <h2>{{ dino.nom }}</h2>
+            <p><strong>Type :</strong> {{ dino.type }}</p>
+            <p><strong>Nourriture :</strong>
+                    {% for nourriture in dino.nourriture.all %}
+                      {{ nourriture.nom }}{% if not forloop.last %}, {% endif %}
+                    {% empty %}
+                      Aucune
+                    {% endfor %}
+            </p>
+          </div>
+          <div class="dino-buttons">
+            <a href="{% url 'modifier_dino' dino.id %}" class="btn-modifier">Modifier</a>
+            <a href="{% url 'supprimer_dino' dino.id %}" class="btn-supprimer">Supprimer</a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+
+  <a href="{% url 'ajouter_dino' %}">Ajouter un nouveau dinosaure</a>
+{% endblock %}

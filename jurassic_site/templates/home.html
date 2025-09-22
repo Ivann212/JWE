@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Jurassic world{% endblock %}
+
+{% block content %}
+
+
+<div class="hero">
+  <h1>Bienvenue dans le parc</h1>
+  <a href="{% url 'enclos' %}" class="btn-simuler">Simuler un enclos</a>
+</div>
+
+<div class="container">
+  <div class="card1">
+    <a href="{% url 'liste_dinos' %}" class="btn-simuler">Les dinosaures</a>
+  </div>
+  <div class="card2">
+    <a href="{% url 'ajouter_dino' %}" class="btn-simuler">Ajouter un dinosaure</a>
+  </div>
+</div>
+
+
+
+
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Supprimer {{ dino.nom }} ?</h1>
+  <p>Es-tu sûr de vouloir supprimer ce dinosaure ?</p>
+
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">Oui, supprimer</button>
+    <a href="{% url 'liste_dinos' %}">Annuler</a>
+  </form>
+{% endblock %}

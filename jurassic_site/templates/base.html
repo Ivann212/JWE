@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Jurassic Site{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+
+    <header class="header">
+        <nav>
+            <a href="/"><img src="{% static 'images/empreinte (1).png' %}" alt="Logo Dinosaure" class="logo-animated">Accueil</a>
+            <a href="/ajouter/">Ajouter un dinosaure</a>
+            <a href="/liste">Liste des dinosaures</a>
+            <a href="#">Simuler un enclos</a>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Jurassic Site</p>
+    </footer>
+</body>
+</html>
+
