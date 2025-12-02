@@ -81,9 +81,11 @@ WSGI_APPLICATION = 'jurassic_site.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+
+import os
 import dj_database_url
 
-if os.environ.get("RENDER"):  # En production sur Render
+if os.environ.get("RENDER"):  # On est sur Render
     DATABASES = {
         'default': dj_database_url.config(
             default=os.environ.get("DATABASE_URL"),
@@ -91,13 +93,14 @@ if os.environ.get("RENDER"):  # En production sur Render
             ssl_require=True
         )
     }
-else:  # si on est en local (PyCharm)
+else:  # Local
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / "db.sqlite3",
         }
     }
+
 
 
 # Password validation
