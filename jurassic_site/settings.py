@@ -74,16 +74,15 @@ WSGI_APPLICATION = 'jurassic_site.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-if os.environ.get("RENDER"):  # si on est sur Render (prod)
+import dj_database_url
+
+if os.environ.get("RENDER"):  # En production sur Render
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': os.environ.get('DB_NAME'),
-            'USER': os.environ.get('DB_USER'),
-            'PASSWORD': os.environ.get('DB_PASS'),
-            'HOST': os.environ.get('DB_HOST'),
-            'PORT': os.environ.get('DB_PORT', '3306'),
-        }
+        'default': dj_database_url.config(
+            default=os.environ.get("DATABASE_URL"),
+            conn_max_age=600,
+            ssl_require=True
+        )
     }
 else:  # si on est en local (PyCharm)
     DATABASES = {
