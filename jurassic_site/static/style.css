@@ -80,8 +80,8 @@ nav a {
 }
 
 nav a:hover {
-  color: #c0a060;
-  border-bottom: 2px solid #c0a060;
+  color: #e60000;
+  border-bottom: 2px solid #e60000;
 }
 
 
@@ -106,7 +106,7 @@ h2 {
 }
 
 footer {
-  margin-top: 40px;
+  margin: 40px;
   text-align: center;
   color: #888;
 }
@@ -173,7 +173,7 @@ form {
   max-width: 500px;
   margin: 40px auto;
   padding: 30px;
-  background-color: #0ACDFF;
+  background-color: #FFFFFF;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   color: #333;
