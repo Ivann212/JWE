@@ -93,7 +93,7 @@ nav a img {
 
 
 
-/* Espace pour le contenu sous le header */
+
 main {
   padding-top: 90px;
 }
@@ -113,15 +113,41 @@ footer {
 
 .hero {
   height: 100vh;
-  background:
-    linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
-    url("/static/images/fondbtn.webp") center center / cover no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  position: relative;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
   text-align: center;
+
+  animation: hero-carousel 10s infinite ease-in-out;
 }
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5); /* overlay */
+  z-index: 1;
+}
+
+.hero * {
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes hero-carousel {
+  0% { background-image: url("/static/images/carou1.webp"); }
+  33% { background-image: url("/static/images/carou2.webp"); }
+  66% { background-image: url("/static/images/carou3.webp"); }
+  100% { background-image: url("/static/images/carou4.webp"); }
+}
+
+
 
 .hero h1 {
   font-size: 80px;
