@@ -252,6 +252,17 @@ form button {
 form button:hover {
   background-color: #45a049;
 }
+select[multiple] {
+    height: 180px;
+    padding: 6px;
+}
+
+select[multiple] option:checked {
+    background-color: #4CAF50;
+    color: white;
+}
+
+
 
 /* CARTES DINO */
 .card-container {

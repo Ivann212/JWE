@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'jurassic_site',
+    'django_select2',
 ]
 
 MIDDLEWARE = [

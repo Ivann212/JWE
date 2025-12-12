@@ -1,4 +1,439 @@
 {% extends "base.html" %}
+
 {% block content %}
-    <h1>Cette fonctionnalité n'est pas encore disponible </h1>
+<style>
+    .enclos-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .section {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .enclos-actuel {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 30px;
+        color: white;
+        min-height: 120px;
+    }
+
+    .enclos-actuel h2 {
+        margin-top: 0;
+        color: white;
+    }
+
+    .enclos-vide {
+        text-align: center;
+        padding: 40px;
+        color: rgba(255,255,255,0.7);
+        font-size: 1.1em;
+    }
+
+    .dinos-dans-enclos {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+    .dino-enclos-tag {
+        background: white;
+        color: #333;
+        padding: 10px 15px;
+        border-radius: 25px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .dino-enclos-tag img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .remove-btn {
+        background: #dc3545;
+        color: white;
+        border: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 1;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .remove-btn:hover {
+        background: #c82333;
+    }
+
+    .dino-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+    .dino-card {
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-align: center;
+        background: white;
+    }
+
+    .dino-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        border-color: #007bff;
+    }
+
+    .dino-card.selected {
+        border-color: #28a745;
+        background-color: #d4edda;
+    }
+
+    .dino-card img {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+
+    .dino-card .nom {
+        font-weight: bold;
+        margin-bottom: 5px;
+        font-size: 1.1em;
+    }
+
+    .dino-card .type {
+        font-size: 0.9em;
+        color: #666;
+    }
+
+    .dino-card .raison {
+        font-size: 0.85em;
+        color: #28a745;
+        margin-top: 8px;
+        font-style: italic;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.85em;
+        margin-top: 5px;
+        font-weight: 500;
+    }
+
+    .badge-carnivore { background: #ff6b6b; color: white; }
+    .badge-herbivore { background: #51cf66; color: white; }
+    .badge-piscivore { background: #339af0; color: white; }
+    .badge-reptile { background: #1c7ed6; color: white; }
+
+    .stats-bar {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 20px;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 2.5em;
+        font-weight: bold;
+        color: #007bff;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 0.9em;
+        margin-top: 5px;
+    }
+
+    .reset-btn {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        transition: all 0.3s;
+    }
+
+    .reset-btn:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #999;
+    }
+
+    .empty-state h3 {
+        margin-top: 20px;
+        color: #666;
+    }
+
+    h2 {
+        color: #333;
+        margin-bottom: 15px;
+    }
+
+    .info-box {
+        background: #e7f3ff;
+        border-left: 4px solid #007bff;
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+
+    .info-box p {
+        margin: 0;
+        color: #004085;
+    }
+</style>
+
+<div class="enclos-container">
+    <h1>🦕 Simulateur d'Enclos</h1>
+
+    <div class="info-box">
+        <p><strong>Comment utiliser :</strong> Sélectionnez des dinosaures pour composer votre enclos. Seuls les dinosaures compatibles avec TOUS les membres actuels de l'enclos seront proposés.</p>
+    </div>
+
+    <!-- Enclos actuel -->
+    <div class="enclos-actuel">
+        <h2>🏞️ Enclos actuel</h2>
+        <div id="enclos-content">
+            <div class="enclos-vide">
+                <div style="font-size: 3em; margin-bottom: 10px;">🦖</div>
+                <div>Aucun dinosaure dans l'enclos</div>
+                <div style="font-size: 0.9em; margin-top: 10px;">Sélectionnez un dinosaure ci-dessous pour commencer</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="stats-bar" id="stats-bar" style="display: none;">
+        <div class="stat-item">
+            <div class="stat-number" id="count-enclos">0</div>
+            <div class="stat-label">Dans l'enclos</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" id="count-disponibles">0</div>
+            <div class="stat-label">Disponibles</div>
+        </div>
+        <div class="stat-item">
+            <button class="reset-btn" onclick="resetEnclos()">🔄 Vider l'enclos</button>
+        </div>
+    </div>
+
+    <!-- Liste des dinosaures disponibles -->
+    <div class="section">
+        <h2 id="section-title">Sélectionnez votre premier dinosaure</h2>
+
+        <div class="dino-grid" id="dinos-grid">
+            {% for dino in dinosaures %}
+            <div class="dino-card" onclick="ajouterDino({{ dino.id }})" data-id="{{ dino.id }}">
+                {% if dino.image %}
+                    <img src="{{ dino.image.url }}" alt="{{ dino.nom }}">
+                {% else %}
+                    <div style="width:100%; height:120px; background:#eee; border-radius:4px; display:flex; align-items:center; justify-content:center; margin-bottom:10px; font-size:2em;">
+                        🦕
+                    </div>
+                {% endif %}
+                <div class="nom">{{ dino.nom }}</div>
+                <div class="type">{{ dino.type }}</div>
+                {% if dino.famille %}
+                    <div class="badge badge-{{ dino.type|lower|cut:' ' }}">{{ dino.famille }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <div id="empty-state" class="empty-state" style="display: none;">
+            <div style="font-size: 4em;">😔</div>
+            <h3>Aucun dinosaure compatible disponible</h3>
+            <p>Tous les dinosaures restants sont incompatibles avec votre enclos actuel.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    let enclosActuel = [];  // IDs des dinosaures dans l'enclos
+    let tousLesDinos = {{ dinosaures|safe|escapejs }};  // Données complètes depuis Django
+
+    // Convertir les données Django en objet JS utilisable
+    const dinosData = {
+        {% for dino in dinosaures %}
+        {{ dino.id }}: {
+            id: {{ dino.id }},
+            nom: "{{ dino.nom|escapejs }}",
+            type: "{{ dino.type|escapejs }}",
+            famille: "{{ dino.famille|default:'Non définie'|escapejs }}",
+            image: {% if dino.image %}"{{ dino.image.url }}"{% else %}null{% endif %}
+        },
+        {% endfor %}
+    };
+
+    function ajouterDino(dinoId) {
+        // Ajouter le dino à l'enclos
+        if (!enclosActuel.includes(dinoId)) {
+            enclosActuel.push(dinoId);
+            mettreAJourEnclos();
+        }
+    }
+
+    function retirerDino(dinoId) {
+        enclosActuel = enclosActuel.filter(id => id !== dinoId);
+        mettreAJourEnclos();
+    }
+
+    function mettreAJourEnclos() {
+        const enclosContent = document.getElementById('enclos-content');
+
+        if (enclosActuel.length === 0) {
+            // Enclos vide
+            enclosContent.innerHTML = `
+                <div class="enclos-vide">
+                    <div style="font-size: 3em; margin-bottom: 10px;">🦖</div>
+                    <div>Aucun dinosaure dans l'enclos</div>
+                    <div style="font-size: 0.9em; margin-top: 10px;">Sélectionnez un dinosaure ci-dessous pour commencer</div>
+                </div>
+            `;
+            document.getElementById('stats-bar').style.display = 'none';
+            document.getElementById('section-title').textContent = 'Sélectionnez votre premier dinosaure';
+
+            // Afficher tous les dinosaures
+            document.querySelectorAll('.dino-card').forEach(card => {
+                card.style.display = 'block';
+            });
+            document.getElementById('empty-state').style.display = 'none';
+
+        } else {
+            // Afficher les dinosaures dans l'enclos
+            const dinosHTML = enclosActuel.map(id => {
+                const dino = dinosData[id];
+                return `
+                    <div class="dino-enclos-tag">
+                        ${dino.image ?
+                            `<img src="${dino.image}" alt="${dino.nom}">` :
+                            `<div style="width:40px;height:40px;background:#ddd;border-radius:50%;display:flex;align-items:center;justify-content:center;">🦕</div>`
+                        }
+                        <span>${dino.nom}</span>
+                        <span class="badge badge-${dino.type.toLowerCase().replace(' ', '')}">${dino.type}</span>
+                        <button class="remove-btn" onclick="retirerDino(${id})" title="Retirer">×</button>
+                    </div>
+                `;
+            }).join('');
+
+            enclosContent.innerHTML = `<div class="dinos-dans-enclos">${dinosHTML}</div>`;
+            document.getElementById('stats-bar').style.display = 'flex';
+            document.getElementById('count-enclos').textContent = enclosActuel.length;
+
+            // Charger les dinosaures compatibles
+            chargerCompatibles();
+        }
+    }
+
+    function chargerCompatibles() {
+        const idsString = enclosActuel.join(',');
+
+        fetch(`/api/compatibles/${idsString}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    afficherCompatibles(data.compatibles);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Erreur lors du chargement des compatibilités');
+            });
+    }
+
+    function afficherCompatibles(compatibles) {
+        const grid = document.getElementById('dinos-grid');
+        const emptyState = document.getElementById('empty-state');
+        const sectionTitle = document.getElementById('section-title');
+
+        document.getElementById('count-disponibles').textContent = compatibles.length;
+
+        if (compatibles.length === 0) {
+            // Aucun compatible
+            grid.style.display = 'none';
+            emptyState.style.display = 'block';
+            sectionTitle.textContent = 'Aucun dinosaure compatible';
+        } else {
+            // Afficher uniquement les compatibles
+            grid.style.display = 'grid';
+            emptyState.style.display = 'none';
+            sectionTitle.textContent = `Ajouter un dinosaure (${compatibles.length} compatible${compatibles.length > 1 ? 's' : ''})`;
+
+            // Masquer toutes les cartes
+            document.querySelectorAll('.dino-card').forEach(card => {
+                card.style.display = 'none';
+            });
+
+            // Afficher uniquement les compatibles
+            compatibles.forEach(dino => {
+                const card = document.querySelector(`.dino-card[data-id="${dino.id}"]`);
+                if (card) {
+                    card.style.display = 'block';
+
+                    // Ajouter la raison de compatibilité
+                    let raisonDiv = card.querySelector('.raison');
+                    if (!raisonDiv) {
+                        raisonDiv = document.createElement('div');
+                        raisonDiv.className = 'raison';
+                        card.appendChild(raisonDiv);
+                    }
+                    raisonDiv.textContent = dino.raison;
+                }
+            });
+        }
+    }
+
+    function resetEnclos() {
+        if (enclosActuel.length > 0) {
+            if (confirm('Voulez-vous vraiment vider l\'enclos ?')) {
+                enclosActuel = [];
+                mettreAJourEnclos();
+            }
+        }
+    }
+
+// Initialisation
+mettreAJourEnclos();
+</script>
+
 {% endblock %}
