@@ -149,7 +149,8 @@
     .badge-carnivore { background: #ff6b6b; color: white; }
     .badge-herbivore { background: #51cf66; color: white; }
     .badge-piscivore { background: #339af0; color: white; }
-    .badge-reptile { background: #1c7ed6; color: white; }
+    .badge-reptilemarin { background: #1c7ed6; color: white; }
+    .badge-reptilevolant { background: #ae3ec9; color: white; }
 
     .stats-bar {
         background: #f8f9fa;
@@ -289,150 +290,174 @@
 </div>
 
 <script>
-    let enclosActuel = [];  // IDs des dinosaures dans l'enclos
-    let tousLesDinos = {{ dinosaures|safe|escapejs }};  // Données complètes depuis Django
+let enclosActuel = [];  // IDs des dinosaures dans l'enclos
 
-    // Convertir les données Django en objet JS utilisable
-    const dinosData = {
-        {% for dino in dinosaures %}
-        {{ dino.id }}: {
-            id: {{ dino.id }},
-            nom: "{{ dino.nom|escapejs }}",
-            type: "{{ dino.type|escapejs }}",
-            famille: "{{ dino.famille|default:'Non définie'|escapejs }}",
-            image: {% if dino.image %}"{{ dino.image.url }}"{% else %}null{% endif %}
-        },
-        {% endfor %}
-    };
+// Données des dinosaures
+const dinosData = {
+    {% for dino in dinosaures %}
+    {{ dino.id }}: {
+        id: {{ dino.id }},
+        nom: "{{ dino.nom }}",
+        type: "{{ dino.type }}",
+        famille: "{{ dino.famille|default:'Non définie' }}",
+        image: {% if dino.image %}"{{ dino.image.url }}"{% else %}null{% endif %}
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+};
 
-    function ajouterDino(dinoId) {
-        // Ajouter le dino à l'enclos
-        if (!enclosActuel.includes(dinoId)) {
-            enclosActuel.push(dinoId);
+console.log('Données des dinosaures chargées:', dinosData);
+
+function ajouterDino(dinoId) {
+    console.log('Tentative d\'ajout du dino:', dinoId);
+
+    // Ajouter le dino à l'enclos
+    if (!enclosActuel.includes(dinoId)) {
+        enclosActuel.push(dinoId);
+        console.log('Enclos actuel:', enclosActuel);
+        mettreAJourEnclos();
+    } else {
+        console.log('Dino déjà dans l\'enclos');
+    }
+}
+
+function retirerDino(dinoId) {
+    console.log('Retrait du dino:', dinoId);
+    enclosActuel = enclosActuel.filter(id => id !== dinoId);
+    mettreAJourEnclos();
+}
+
+function mettreAJourEnclos() {
+    console.log('Mise à jour de l\'enclos:', enclosActuel);
+    const enclosContent = document.getElementById('enclos-content');
+
+    if (enclosActuel.length === 0) {
+        // Enclos vide
+        enclosContent.innerHTML = `
+            <div class="enclos-vide">
+                <div style="font-size: 3em; margin-bottom: 10px;">🦖</div>
+                <div>Aucun dinosaure dans l'enclos</div>
+                <div style="font-size: 0.9em; margin-top: 10px;">Sélectionnez un dinosaure ci-dessous pour commencer</div>
+            </div>
+        `;
+        document.getElementById('stats-bar').style.display = 'none';
+        document.getElementById('section-title').textContent = 'Sélectionnez votre premier dinosaure';
+
+        // Afficher tous les dinosaures
+        document.querySelectorAll('.dino-card').forEach(card => {
+            card.style.display = 'block';
+        });
+        document.getElementById('empty-state').style.display = 'none';
+
+    } else {
+        // Afficher les dinosaures dans l'enclos
+        const dinosHTML = enclosActuel.map(id => {
+            const dino = dinosData[id];
+            if (!dino) {
+                console.error('Dinosaure non trouvé:', id);
+                return '';
+            }
+            return `
+                <div class="dino-enclos-tag">
+                    ${dino.image ?
+                        `<img src="${dino.image}" alt="${dino.nom}">` :
+                        `<div style="width:40px;height:40px;background:#ddd;border-radius:50%;display:flex;align-items:center;justify-content:center;">🦕</div>`
+                    }
+                    <span>${dino.nom}</span>
+                    <span class="badge badge-${dino.type.toLowerCase().replace(/ /g, '')}">${dino.type}</span>
+                    <button class="remove-btn" onclick="retirerDino(${id}); event.stopPropagation();" title="Retirer">×</button>
+                </div>
+            `;
+        }).join('');
+
+        enclosContent.innerHTML = `<div class="dinos-dans-enclos">${dinosHTML}</div>`;
+        document.getElementById('stats-bar').style.display = 'flex';
+        document.getElementById('count-enclos').textContent = enclosActuel.length;
+
+        // Charger les dinosaures compatibles
+        chargerCompatibles();
+    }
+}
+
+function chargerCompatibles() {
+    const idsString = enclosActuel.join(',');
+    console.log('Chargement des compatibles pour:', idsString);
+
+    fetch(`/api/compatibles/${idsString}/`)
+        .then(response => {
+            console.log('Réponse reçue:', response);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Données reçues:', data);
+            if (data.success) {
+                afficherCompatibles(data.compatibles);
+            } else {
+                console.error('Erreur API:', data.error);
+                alert('Erreur: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur fetch:', error);
+            alert('Erreur lors du chargement des compatibilités: ' + error);
+        });
+}
+
+function afficherCompatibles(compatibles) {
+    console.log('Affichage de', compatibles.length, 'compatibles');
+    const grid = document.getElementById('dinos-grid');
+    const emptyState = document.getElementById('empty-state');
+    const sectionTitle = document.getElementById('section-title');
+
+    document.getElementById('count-disponibles').textContent = compatibles.length;
+
+    if (compatibles.length === 0) {
+        // Aucun compatible
+        grid.style.display = 'none';
+        emptyState.style.display = 'block';
+        sectionTitle.textContent = 'Aucun dinosaure compatible';
+    } else {
+        // Afficher uniquement les compatibles
+        grid.style.display = 'grid';
+        emptyState.style.display = 'none';
+        sectionTitle.textContent = `Ajouter un dinosaure (${compatibles.length} compatible${compatibles.length > 1 ? 's' : ''})`;
+
+        // Masquer toutes les cartes
+        document.querySelectorAll('.dino-card').forEach(card => {
+            card.style.display = 'none';
+        });
+
+        // Afficher uniquement les compatibles
+        compatibles.forEach(dino => {
+            const card = document.querySelector(`.dino-card[data-id="${dino.id}"]`);
+            if (card) {
+                card.style.display = 'block';
+
+                // Ajouter/mettre à jour la raison de compatibilité
+                let raisonDiv = card.querySelector('.raison');
+                if (!raisonDiv) {
+                    raisonDiv = document.createElement('div');
+                    raisonDiv.className = 'raison';
+                    card.appendChild(raisonDiv);
+                }
+                raisonDiv.textContent = dino.raison;
+            } else {
+                console.warn('Carte non trouvée pour le dino:', dino.id);
+            }
+        });
+    }
+}
+
+function resetEnclos() {
+    if (enclosActuel.length > 0) {
+        if (confirm('Voulez-vous vraiment vider l\'enclos ?')) {
+            enclosActuel = [];
             mettreAJourEnclos();
         }
     }
-
-    function retirerDino(dinoId) {
-        enclosActuel = enclosActuel.filter(id => id !== dinoId);
-        mettreAJourEnclos();
-    }
-
-    function mettreAJourEnclos() {
-        const enclosContent = document.getElementById('enclos-content');
-
-        if (enclosActuel.length === 0) {
-            // Enclos vide
-            enclosContent.innerHTML = `
-                <div class="enclos-vide">
-                    <div style="font-size: 3em; margin-bottom: 10px;">🦖</div>
-                    <div>Aucun dinosaure dans l'enclos</div>
-                    <div style="font-size: 0.9em; margin-top: 10px;">Sélectionnez un dinosaure ci-dessous pour commencer</div>
-                </div>
-            `;
-            document.getElementById('stats-bar').style.display = 'none';
-            document.getElementById('section-title').textContent = 'Sélectionnez votre premier dinosaure';
-
-            // Afficher tous les dinosaures
-            document.querySelectorAll('.dino-card').forEach(card => {
-                card.style.display = 'block';
-            });
-            document.getElementById('empty-state').style.display = 'none';
-
-        } else {
-            // Afficher les dinosaures dans l'enclos
-            const dinosHTML = enclosActuel.map(id => {
-                const dino = dinosData[id];
-                return `
-                    <div class="dino-enclos-tag">
-                        ${dino.image ?
-                            `<img src="${dino.image}" alt="${dino.nom}">` :
-                            `<div style="width:40px;height:40px;background:#ddd;border-radius:50%;display:flex;align-items:center;justify-content:center;">🦕</div>`
-                        }
-                        <span>${dino.nom}</span>
-                        <span class="badge badge-${dino.type.toLowerCase().replace(' ', '')}">${dino.type}</span>
-                        <button class="remove-btn" onclick="retirerDino(${id})" title="Retirer">×</button>
-                    </div>
-                `;
-            }).join('');
-
-            enclosContent.innerHTML = `<div class="dinos-dans-enclos">${dinosHTML}</div>`;
-            document.getElementById('stats-bar').style.display = 'flex';
-            document.getElementById('count-enclos').textContent = enclosActuel.length;
-
-            // Charger les dinosaures compatibles
-            chargerCompatibles();
-        }
-    }
-
-    function chargerCompatibles() {
-        const idsString = enclosActuel.join(',');
-
-        fetch(`/api/compatibles/${idsString}/`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    afficherCompatibles(data.compatibles);
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                alert('Erreur lors du chargement des compatibilités');
-            });
-    }
-
-    function afficherCompatibles(compatibles) {
-        const grid = document.getElementById('dinos-grid');
-        const emptyState = document.getElementById('empty-state');
-        const sectionTitle = document.getElementById('section-title');
-
-        document.getElementById('count-disponibles').textContent = compatibles.length;
-
-        if (compatibles.length === 0) {
-            // Aucun compatible
-            grid.style.display = 'none';
-            emptyState.style.display = 'block';
-            sectionTitle.textContent = 'Aucun dinosaure compatible';
-        } else {
-            // Afficher uniquement les compatibles
-            grid.style.display = 'grid';
-            emptyState.style.display = 'none';
-            sectionTitle.textContent = `Ajouter un dinosaure (${compatibles.length} compatible${compatibles.length > 1 ? 's' : ''})`;
-
-            // Masquer toutes les cartes
-            document.querySelectorAll('.dino-card').forEach(card => {
-                card.style.display = 'none';
-            });
-
-            // Afficher uniquement les compatibles
-            compatibles.forEach(dino => {
-                const card = document.querySelector(`.dino-card[data-id="${dino.id}"]`);
-                if (card) {
-                    card.style.display = 'block';
-
-                    // Ajouter la raison de compatibilité
-                    let raisonDiv = card.querySelector('.raison');
-                    if (!raisonDiv) {
-                        raisonDiv = document.createElement('div');
-                        raisonDiv.className = 'raison';
-                        card.appendChild(raisonDiv);
-                    }
-                    raisonDiv.textContent = dino.raison;
-                }
-            });
-        }
-    }
-
-    function resetEnclos() {
-        if (enclosActuel.length > 0) {
-            if (confirm('Voulez-vous vraiment vider l\'enclos ?')) {
-                enclosActuel = [];
-                mettreAJourEnclos();
-            }
-        }
-    }
+}
 
 // Initialisation
+console.log('Initialisation de la page');
 mettreAJourEnclos();
 </script>
 
