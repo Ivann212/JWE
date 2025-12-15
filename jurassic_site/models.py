@@ -1,6 +1,7 @@
 
 
 from django.db import models
+from cloudinary.models import CloudinaryField
 
 
 class Nourriture(models.Model):
@@ -39,7 +40,7 @@ class Dinosaure(models.Model):
     type = models.CharField(max_length=50, choices=TYPE_CHOICES)
     famille = models.CharField(max_length=100, choices=FAMILLE_CHOICES, blank=True, null=True)  # ✅ Optionnel
     nourriture = models.ManyToManyField(Nourriture, blank=True)
-    image = models.ImageField(upload_to='dinos/', blank=True, null=True)
+    image = CloudinaryField('image', blank=True, null=True)
 
     # Compatibilités individuelles
     aime = models.ManyToManyField('self', symmetrical=False, blank=True, related_name='aimé_par')
