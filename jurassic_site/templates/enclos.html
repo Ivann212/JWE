@@ -263,22 +263,24 @@
         <h2 id="section-title">Sélectionnez votre premier dinosaure</h2>
 
         <div class="dino-grid" id="dinos-grid">
-            {% for dino in dinosaures %}
-            <div class="dino-card" onclick="ajouterDino({{ dino.id }})" data-id="{{ dino.id }}">
-                {% if dino.image %}
-                    <img src="{{ dino.image.url }}" alt="{{ dino.nom }}">
-                {% else %}
-                    <div style="width:100%; height:120px; background:#eee; border-radius:4px; display:flex; align-items:center; justify-content:center; margin-bottom:10px; font-size:2em;">
-                        🦕
+            <!-- Dans la boucle des dinosaures disponibles (ligne ~269) -->
+                {% for dino in dinosaures %}
+                    <div class="dino-card" onclick="ajouterDino({{ dino.id }})" data-id="{{ dino.id }}">
+                        {% if dino.image %}
+                            {% load cloudinary %}
+                            <img src="{% cloudinary_url dino.image.public_id %}" alt="{{ dino.nom }}">
+                        {% else %}
+                            <div style="width:100%; height:120px; background:#eee; border-radius:4px; display:flex; align-items:center; justify-content:center; margin-bottom:10px; font-size:2em;">
+                                🦕
+                            </div>
+                        {% endif %}
+                        <div class="nom">{{ dino.nom }}</div>
+                        <div class="type">{{ dino.type }}</div>
+                        {% if dino.famille %}
+                            <div class="badge badge-{{ dino.type|lower|cut:' ' }}">{{ dino.famille }}</div>
+                        {% endif %}
                     </div>
-                {% endif %}
-                <div class="nom">{{ dino.nom }}</div>
-                <div class="type">{{ dino.type }}</div>
-                {% if dino.famille %}
-                    <div class="badge badge-{{ dino.type|lower|cut:' ' }}">{{ dino.famille }}</div>
-                {% endif %}
-            </div>
-            {% endfor %}
+                {% endfor %}
         </div>
 
         <div id="empty-state" class="empty-state" style="display: none;">
