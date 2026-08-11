@@ -12,6 +12,12 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 import cloudinary
+from dotenv import load_dotenv
+
+# Charge les variables du fichier .env en local (n'a aucun effet en
+# production sur Render, où les variables sont définies directement
+# dans le dashboard).
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
