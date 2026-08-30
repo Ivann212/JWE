@@ -4,6 +4,7 @@ from .models import Dinosaure
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.http import JsonResponse
+import cloudinary.uploader
 
 
 # Page d'accueil (liste des dinos)
@@ -31,11 +32,13 @@ def modifier_dino(request, dino_id):
     dino = get_object_or_404(Dinosaure, id=dino_id)
     if request.method == 'POST':
         form = DinosaureEditForm(request.POST, request.FILES, instance=dino)
+        oldImage = dino.image
         if form.is_valid():
-            if 'image' in request.FILES and dino.image:
-                dino.image.delete(save=False)
+            if 'image' in request.FILES and oldImage:
+                cloudinary.uploader.destroy(oldImage.public_id)
             form.save()
-            return redirect('home')
+            return redirect('liste_dinos')
+            
     else:
         form = DinosaureEditForm(instance=dino)
     return render(request, 'formulaire_dino.html', {'form': form, 'dino': dino})
@@ -111,16 +114,22 @@ def verifier_compatibilite(dino1, dino2):
         else:
             return False, "Les reptiles volants nécessitent une volière séparée"
 
-    # 3. Les carnivores ne sont pas compatibles avec les herbivores
-    if (dino1.type == 'Carnivore' and dino2.type == 'Herbivore') or \
-            (dino1.type == 'Herbivore' and dino2.type == 'Carnivore'):
-        return False, "Les carnivores et herbivores ne peuvent pas cohabiter"
+    # 3bis. Les charognards s'entendent avec toutes les espèces terrestres :
+    # on ignore les règles de type (carnivore/herbivore/piscivore) ci-dessous
+    # si l'un des deux dinosaures appartient à la famille des charognards.
+    est_charognard = dino1.famille == 'Charognard' or dino2.famille == 'Charognard'
 
-    # 4. Les piscivores ne sont compatibles ni avec carnivores ni avec herbivores
-    if dino1.type == 'Piscivore' and dino2.type in ['Carnivore', 'Herbivore']:
-        return False, "Les piscivores ne sont pas compatibles avec ce type"
-    if dino2.type == 'Piscivore' and dino1.type in ['Carnivore', 'Herbivore']:
-        return False, "Les piscivores ne sont pas compatibles avec ce type"
+    if not est_charognard:
+        # 3. Les carnivores ne sont pas compatibles avec les herbivores
+        if (dino1.type == 'Carnivore' and dino2.type == 'Herbivore') or \
+                (dino1.type == 'Herbivore' and dino2.type == 'Carnivore'):
+            return False, "Les carnivores et herbivores ne peuvent pas cohabiter"
+
+        # 4. Les piscivores ne sont compatibles ni avec carnivores ni avec herbivores
+        if dino1.type == 'Piscivore' and dino2.type in ['Carnivore', 'Herbivore']:
+            return False, "Les piscivores ne sont pas compatibles avec ce type"
+        if dino2.type == 'Piscivore' and dino1.type in ['Carnivore', 'Herbivore']:
+            return False, "Les piscivores ne sont pas compatibles avec ce type"
 
     # 5. Vérifier les incompatibilités individuelles
     if dino2 in dino1.naime_pas.all():
@@ -218,6 +227,8 @@ def get_compatibles(request, dino_ids):
         })
 
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+        print(e)
+        return JsonResponse({'success': False, 'error': "Une erreur est survenue"}, status=500)
+        
 
 

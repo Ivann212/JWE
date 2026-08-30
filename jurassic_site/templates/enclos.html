@@ -123,6 +123,24 @@
         font-weight: bold;
         margin-bottom: 5px;
         font-size: 1.1em;
+        color: #222;
+    }
+
+    .filtres-bar {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }
+
+    .filtres-bar input[type="text"],
+    .filtres-bar select {
+        padding: 10px 12px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 14px;
+        flex: 1;
+        min-width: 200px;
     }
 
     .dino-card .type {
@@ -262,6 +280,13 @@
     <div class="section">
         <h2 id="section-title">Sélectionnez votre premier dinosaure</h2>
 
+        <div class="filtres-bar">
+            <input type="text" id="recherche-dino" placeholder="Rechercher un dinosaure par nom...">
+            <select id="filtre-nourriture">
+                <option value="">Tous les régimes alimentaires</option>
+            </select>
+        </div>
+
         <div class="dino-grid" id="dinos-grid">
             <!-- Dans la boucle des dinosaures disponibles (ligne ~269) -->
                 {% for dino in dinosaures %}
@@ -294,6 +319,12 @@
 <script>
 let enclosActuel = [];  // IDs des dinosaures dans l'enclos
 
+// dinosEligibles = null tant qu'on n'a pas encore appelé l'API de
+// compatibilité (enclos vide -> tous les dinos sont éligibles). Une fois
+// l'enclos non vide, ça devient la liste renvoyée par l'API (avec la
+// raison de compatibilité pour chacun).
+let dinosEligibles = null;
+
 // Données des dinosaures
 const dinosData = {
     {% for dino in dinosaures %}
@@ -302,7 +333,8 @@ const dinosData = {
         nom: "{{ dino.nom }}",
         type: "{{ dino.type }}",
         famille: "{{ dino.famille|default:'Non définie' }}",
-        image: {% if dino.image %}"{{ dino.image.url }}"{% else %}null{% endif %}
+        image: {% if dino.image %}"{{ dino.image.url }}"{% else %}null{% endif %},
+        nourriture: [{% for n in dino.nourriture.all %}"{{ n.nom|escapejs }}"{% if not forloop.last %},{% endif %}{% endfor %}]
     }{% if not forloop.last %},{% endif %}
     {% endfor %}
 };
@@ -342,13 +374,10 @@ function mettreAJourEnclos() {
             </div>
         `;
         document.getElementById('stats-bar').style.display = 'none';
-        document.getElementById('section-title').textContent = 'Sélectionnez votre premier dinosaure';
 
-        // Afficher tous les dinosaures
-        document.querySelectorAll('.dino-card').forEach(card => {
-            card.style.display = 'block';
-        });
-        document.getElementById('empty-state').style.display = 'none';
+        // Tous les dinosaures redeviennent éligibles
+        dinosEligibles = null;
+        appliquerFiltres();
 
     } else {
         // Afficher les dinosaures dans l'enclos
@@ -392,7 +421,8 @@ function chargerCompatibles() {
         .then(data => {
             console.log('Données reçues:', data);
             if (data.success) {
-                afficherCompatibles(data.compatibles);
+                dinosEligibles = data.compatibles;
+                appliquerFiltres();
             } else {
                 console.error('Erreur API:', data.error);
                 alert('Erreur: ' + data.error);
@@ -404,48 +434,72 @@ function chargerCompatibles() {
         });
 }
 
-function afficherCompatibles(compatibles) {
-    console.log('Affichage de', compatibles.length, 'compatibles');
+// Applique à la fois le filtre de compatibilité (dinosEligibles) et les
+// filtres saisis par l'utilisateur (recherche par nom, régime alimentaire).
+// C'est la seule fonction qui décide, au final, quelles cartes sont
+// visibles : elle réinitialise systématiquement l'affichage de la grille,
+// ce qui évite qu'un état précédent (ex: grille masquée car 0 compatible)
+// reste bloqué après un changement de filtre ou un vidage de l'enclos.
+function appliquerFiltres() {
     const grid = document.getElementById('dinos-grid');
     const emptyState = document.getElementById('empty-state');
     const sectionTitle = document.getElementById('section-title');
+    const termeRecherche = document.getElementById('recherche-dino').value.trim().toLowerCase();
+    const nourritureChoisie = document.getElementById('filtre-nourriture').value;
 
-    document.getElementById('count-disponibles').textContent = compatibles.length;
-
-    if (compatibles.length === 0) {
-        // Aucun compatible
-        grid.style.display = 'none';
-        emptyState.style.display = 'block';
-        sectionTitle.textContent = 'Aucun dinosaure compatible';
+    let idsEligibles;
+    let raisonsParId = {};
+    if (dinosEligibles === null) {
+        idsEligibles = Object.keys(dinosData).map(Number);
     } else {
-        // Afficher uniquement les compatibles
-        grid.style.display = 'grid';
-        emptyState.style.display = 'none';
-        sectionTitle.textContent = `Ajouter un dinosaure (${compatibles.length} compatible${compatibles.length > 1 ? 's' : ''})`;
+        idsEligibles = dinosEligibles.map(d => d.id);
+        dinosEligibles.forEach(d => { raisonsParId[d.id] = d.raison; });
+    }
 
-        // Masquer toutes les cartes
-        document.querySelectorAll('.dino-card').forEach(card => {
-            card.style.display = 'none';
-        });
+    let nbAffiches = 0;
 
-        // Afficher uniquement les compatibles
-        compatibles.forEach(dino => {
-            const card = document.querySelector(`.dino-card[data-id="${dino.id}"]`);
-            if (card) {
-                card.style.display = 'block';
+    document.querySelectorAll('.dino-card').forEach(card => {
+        const id = parseInt(card.dataset.id, 10);
+        const dino = dinosData[id];
 
-                // Ajouter/mettre à jour la raison de compatibilité
-                let raisonDiv = card.querySelector('.raison');
+        const estEligible = idsEligibles.includes(id);
+        const correspondRecherche = !termeRecherche || dino.nom.toLowerCase().includes(termeRecherche);
+        const correspondNourriture = !nourritureChoisie || dino.nourriture.includes(nourritureChoisie);
+
+        if (estEligible && correspondRecherche && correspondNourriture) {
+            card.style.display = 'block';
+            nbAffiches++;
+
+            let raisonDiv = card.querySelector('.raison');
+            if (raisonsParId[id]) {
                 if (!raisonDiv) {
                     raisonDiv = document.createElement('div');
                     raisonDiv.className = 'raison';
                     card.appendChild(raisonDiv);
                 }
-                raisonDiv.textContent = dino.raison;
-            } else {
-                console.warn('Carte non trouvée pour le dino:', dino.id);
+                raisonDiv.textContent = raisonsParId[id];
+            } else if (raisonDiv) {
+                raisonDiv.remove();
             }
-        });
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    document.getElementById('count-disponibles').textContent = idsEligibles.length;
+
+    if (nbAffiches === 0) {
+        grid.style.display = 'none';
+        emptyState.style.display = 'block';
+        sectionTitle.textContent = (termeRecherche || nourritureChoisie)
+            ? 'Aucun dinosaure ne correspond à ces filtres'
+            : 'Aucun dinosaure compatible';
+    } else {
+        grid.style.display = 'grid';
+        emptyState.style.display = 'none';
+        sectionTitle.textContent = dinosEligibles === null
+            ? 'Sélectionnez votre premier dinosaure'
+            : `Ajouter un dinosaure (${idsEligibles.length} compatible${idsEligibles.length > 1 ? 's' : ''})`;
     }
 }
 
@@ -458,8 +512,25 @@ function resetEnclos() {
     }
 }
 
+function initFiltreNourriture() {
+    const select = document.getElementById('filtre-nourriture');
+    const regimes = new Set();
+    Object.values(dinosData).forEach(dino => {
+        dino.nourriture.forEach(n => regimes.add(n));
+    });
+    [...regimes].sort().forEach(regime => {
+        const option = document.createElement('option');
+        option.value = regime;
+        option.textContent = regime;
+        select.appendChild(option);
+    });
+}
+
 // Initialisation
 console.log('Initialisation de la page');
+initFiltreNourriture();
+document.getElementById('recherche-dino').addEventListener('input', appliquerFiltres);
+document.getElementById('filtre-nourriture').addEventListener('change', appliquerFiltres);
 mettreAJourEnclos();
 </script>
 

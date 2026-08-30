@@ -412,3 +412,72 @@ a[href*="ajouter_dino"]:hover {
   animation-delay: 0.5s;
 }
 
+/* ==========================================================
+   RESPONSIVE — adaptation mobile / tablette
+   ========================================================== */
+
+/* Tablette : on réduit les grands titres et on empile les
+   deux cartes de la page d'accueil (herbivores/carnivores)
+   au lieu de les garder côte à côte. */
+@media (max-width: 900px) {
+  .main-title {
+    font-size: 48px;
+    letter-spacing: 4px;
+  }
+
+  .hero h1 {
+    font-size: 48px;
+    letter-spacing: 2px;
+  }
+
+  .container {
+    flex-direction: column;
+  }
+
+  .card1,
+  .card2 {
+    width: 100%;
+    height: 40vh;
+  }
+}
+
+/* Mobile : le header passe en colonne, les boutons prennent
+   toute la largeur, les cartes dinosaures s'empilent en une
+   seule colonne et le formulaire perd ses marges latérales. */
+@media (max-width: 600px) {
+  header {
+    padding: 15px 20px;
+  }
+
+  .header nav {
+    flex-direction: column;
+    gap: 8px;
+    max-width: 100%;
+  }
+
+  .hero h1 {
+    font-size: 32px;
+  }
+
+  .hero .btn-simuler,
+  .container .btn-simuler {
+    padding: 14px 30px;
+    font-size: 16px;
+  }
+
+  .card-container {
+    padding: 20px;
+    gap: 20px;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 340px;
+  }
+
+  form {
+    margin: 20px 16px;
+    padding: 20px;
+  }
+}
+

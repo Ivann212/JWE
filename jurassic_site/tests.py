@@ -169,10 +169,6 @@ class VerifierCompatibiliteTest(TestCase):
     def test_naime_pas_type(self):
         trex = Dinosaure.objects.create(nom="tyranosaure", type="Carnivore", naime_pas_types="Carnivore")
         velo = Dinosaure.objects.create(nom="Velociraptor", type="Carnivore")
-        
-        compatible, raison = verifier_compatibilite(trex, velo)
-        self.assertFalse(compatible)
-        self.assertIn("n'aime pas les", raison)
 
         # Sens 1
         compatible, raison = verifier_compatibilite(trex, velo)
@@ -183,3 +179,21 @@ class VerifierCompatibiliteTest(TestCase):
         compatible2, raison2 = verifier_compatibilite(velo, trex)
         self.assertFalse(compatible2)
         self.assertIn("n'aime pas les", raison2)
+
+    def test_charognard_compatible_avec_herbivore(self):
+        # Un charognard (ici de type Carnivore) doit rester compatible avec
+        # un herbivore, alors que la règle carnivore/herbivore les rendrait
+        # normalement incompatibles.
+        vautour = Dinosaure.objects.create(
+            nom="Compsognathus", type="Carnivore", famille="Charognard"
+        )
+        tricera = Dinosaure.objects.create(nom="Tricératops", type="Herbivore")
+
+        compatible, raison = verifier_compatibilite(vautour, tricera)
+        self.assertTrue(compatible)
+        self.assertEqual(raison, "Compatible")
+
+        # Sens 2 : même données, ordre inversé
+        compatible2, raison2 = verifier_compatibilite(tricera, vautour)
+        self.assertTrue(compatible2)
+        self.assertEqual(raison2, "Compatible")

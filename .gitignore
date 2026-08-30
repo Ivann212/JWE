@@ -21,3 +21,10 @@ staticfiles/
 # OS
 .DS_Store
 Thumbs.db
+
+# Brouillons du dossier DWWM (pas destinés au repo public)
+dossier_projet_brouillon.md
+dossier_professionnel_brouillon.md
+notes_difficultes_deploiement.md
+dossier_captures/
+dinos_backup.json
