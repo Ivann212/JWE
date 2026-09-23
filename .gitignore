@@ -1,31 +1,32 @@
-# Environnements virtuels
+
 venv/
 env/
 *.venv
 
-# Python
+
 __pycache__/
 *.pyc
 *.pyo
 
-# Django
+
 db.sqlite3
 staticfiles/
 
-# Variables d'environnement (secrets)
+
 .env
 
-# IDE
+
 .idea/
 
-# OS
+
 .DS_Store
 Thumbs.db
 
-# Dossier DWWM (brouillons/versions de travail, pas destinés au repo public)
+
 DWWM/
 dossier_projet_brouillon.md
 dossier_professionnel_brouillon.md
 notes_difficultes_deploiement.md
 dossier_captures/
 dinos_backup.json
+images/
