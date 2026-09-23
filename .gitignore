@@ -22,7 +22,8 @@ staticfiles/
 .DS_Store
 Thumbs.db
 
-# Brouillons du dossier DWWM (pas destinés au repo public)
+# Dossier DWWM (brouillons/versions de travail, pas destinés au repo public)
+DWWM/
 dossier_projet_brouillon.md
 dossier_professionnel_brouillon.md
 notes_difficultes_deploiement.md
